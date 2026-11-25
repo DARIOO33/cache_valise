@@ -35,6 +35,7 @@
                     <tr>
                         <th>Facture</th><th>Date</th><th>Client</th><th class="text-center">Statut</th>
                         <th class="text-end">Total</th><th class="text-end">Encaisse</th><th class="text-end">Reste du</th>
+                        <th class="text-end">PDF</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -56,9 +57,12 @@
                             <td class="text-end fw-semibold">
                                 <x-montant :value="$vente->statut === 'annulee' ? 0 : (float) $vente->total - $encaisse"/>
                             </td>
+                            <td class="text-end">
+                                <a href="{{ route('ventes.pdf', $vente) }}" class="btn btn-sm btn-outline-secondary">PDF</a>
+                            </td>
                         </tr>
                     @empty
-                        <tr><td colspan="7" class="text-center text-body-secondary py-4">Aucune facture.</td></tr>
+                        <tr><td colspan="8" class="text-center text-body-secondary py-4">Aucune facture.</td></tr>
                     @endforelse
                 </tbody>
             </table>

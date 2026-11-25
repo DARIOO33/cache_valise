@@ -3,12 +3,14 @@
 use App\Http\Controllers\CaisseController;
 use App\Http\Controllers\ChargeController;
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FournisseurController;
 use App\Http\Controllers\LigneVenteController;
 use App\Http\Controllers\LotController;
 use App\Http\Controllers\ModeleController;
 use App\Http\Controllers\PaiementChargeController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\RapportController;
 use App\Http\Controllers\ReglementController;
 use App\Http\Controllers\VenteController;
 use Illuminate\Support\Facades\Route;
@@ -17,7 +19,7 @@ use Illuminate\Support\Facades\Route;
 Route::redirect('/', '/dashboard');
 
 Route::middleware('auth')->group(function () {
-    Route::view('/dashboard', 'dashboard')->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Phase 2 - models and production lots.
     Route::resource('modeles', ModeleController::class)->except(['show', 'destroy']);
@@ -48,6 +50,12 @@ Route::middleware('auth')->group(function () {
     Route::post('caisse/mouvement', [CaisseController::class, 'store'])->name('caisse.store');
     // The journal is append-only: cancelling writes a contre-ecriture.
     Route::post('caisse/{mouvement}/annulation', [CaisseController::class, 'annulation'])->name('caisse.annulation');
+
+    // Phase 6 - reports, PDF and CSV exports.
+    Route::get('rapports', [RapportController::class, 'index'])->name('rapports.index');
+    Route::get('rapports/pdf', [RapportController::class, 'pdf'])->name('rapports.pdf');
+    Route::get('rapports/csv', [RapportController::class, 'csv'])->name('rapports.csv');
+    Route::get('ventes/{vente}/pdf', [VenteController::class, 'pdf'])->name('ventes.pdf');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

@@ -49,7 +49,10 @@
                         <a class="nav-link {{ request()->routeIs('caisse.*') ? 'active' : '' }}"
                            href="{{ route('caisse.index') }}">Caisse</a>
                     </li>
-                    {{-- Next phase: rapports. --}}
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('rapports.*') ? 'active' : '' }}"
+                           href="{{ route('rapports.index') }}">Rapports</a>
+                    </li>
                 </ul>
                 <ul class="navbar-nav">
                     <li class="nav-item dropdown">

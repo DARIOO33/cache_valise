@@ -5,12 +5,15 @@ namespace App\Http\Controllers;
 use App\Http\Requests\VenteRequest;
 use App\Models\Client;
 use App\Models\Lot;
+use App\Models\Parametre;
 use App\Models\Vente;
 use App\Services\SalesService;
 use App\Services\SequenceService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\View\View;
 use RuntimeException;
 
@@ -75,6 +78,18 @@ class VenteController extends Controller
                 ->pluck('lot.numero')
                 ->unique(),
         ]);
+    }
+
+    /** Section 3.4: print or export the invoice as a PDF. */
+    public function pdf(Vente $vente): Response
+    {
+        $vente->load(['client', 'lignes.lot.modele', 'reglements']);
+
+        return Pdf::loadView('ventes.pdf', [
+            'vente' => $vente,
+            'encaisse' => (float) $vente->reglements->sum('montant'),
+            'parametres' => Parametre::pluck('valeur', 'cle'),
+        ])->setPaper('a4')->download("facture-{$vente->numero_facture}.pdf");
     }
 
     public function edit(Vente $vente): View

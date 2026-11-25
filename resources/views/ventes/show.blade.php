@@ -19,6 +19,7 @@
         </div>
         <div class="text-end">
             <div class="mb-2">@include('ventes._statut', ['statut' => $vente->statut])</div>
+            <a href="{{ route('ventes.pdf', $vente) }}" class="btn btn-sm btn-outline-secondary">Facture PDF</a>
             @if ($vente->statut === 'brouillon')
                 <a href="{{ route('ventes.edit', $vente) }}" class="btn btn-sm btn-outline-secondary">Modifier l'en-tete</a>
                 <form method="POST" action="{{ route('ventes.validation', $vente) }}" class="d-inline"
