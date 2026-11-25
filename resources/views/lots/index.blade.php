@@ -19,6 +19,8 @@
                         <th class="text-end">Produite</th>
                         <th class="text-end">Vendue</th>
                         <th class="text-end">Restante</th>
+                        <th class="text-end">Cout total</th>
+                        <th class="text-end">Cout unitaire</th>
                         <th class="text-center">Etat</th>
                         <th class="text-end">Actions</th>
                     </tr>
@@ -35,6 +37,8 @@
                             <td class="text-end">{{ $lot->quantite_produite }}</td>
                             <td class="text-end">{{ $vendue }}</td>
                             <td class="text-end fw-semibold">{{ $lot->quantite_produite - $vendue }}</td>
+                            <td class="text-end"><x-montant :value="$lot->cout_total ?? 0"/></td>
+                            <td class="text-end"><x-montant :value="$lot->quantite_produite > 0 ? round((float) ($lot->cout_total ?? 0) / $lot->quantite_produite, 3) : 0"/></td>
                             <td class="text-center">
                                 @include('lots._badge', ['etat' => $lot->etat])
                             </td>
@@ -45,7 +49,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="text-center text-body-secondary py-4">
+                            <td colspan="10" class="text-center text-body-secondary py-4">
                                 Aucun lot enregistre.
                             </td>
                         </tr>

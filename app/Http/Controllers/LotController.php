@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Http\Requests\LotRequest;
 use App\Models\Lot;
 use App\Models\Modele;
+use App\Services\ProductionCostService;
 use App\Services\SequenceService;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
@@ -15,7 +17,8 @@ class LotController extends Controller
     public function index(): View
     {
         $lots = Lot::with('modele')
-            ->withSum(['lignes as quantite_vendue' => $this->lignesValidees()], 'quantite')
+            ->withQuantiteVendue()
+            ->withSum('charges as cout_total', 'montant')
             ->orderByDesc('date_production')
             ->orderByDesc('id')
             ->paginate(15);
@@ -46,12 +49,16 @@ class LotController extends Controller
             ->with('status', "Lot {$lot->numero} cree.");
     }
 
-    public function show(Lot $lot): View
+    public function show(Lot $lot, ProductionCostService $couts): View
     {
-        $lot->load('modele')
-            ->loadSum(['lignes as quantite_vendue' => $this->lignesValidees()], 'quantite');
+        $lot->load(['modele', 'charges' => fn ($q) => $q->with('fournisseur')->orderBy('date_charge')]);
 
-        return view('lots.show', compact('lot'));
+        return view('lots.show', [
+            'lot' => $lot,
+            'coutTotal' => $couts->coutTotal($lot),
+            'coutUnitaire' => $couts->coutUnitaire($lot),
+            'repartition' => $couts->repartitionParCategorie($lot),
+        ]);
     }
 
     public function edit(Lot $lot): View
@@ -72,16 +79,7 @@ class LotController extends Controller
             ->with('status', "Lot {$lot->numero} modifie.");
     }
 
-    /** Only validated sales count against a lot's produced quantity. */
-    private function lignesValidees(): callable
-    {
-        return fn (Builder $query) => $query->whereHas(
-            'vente',
-            fn (Builder $vente) => $vente->where('statut', 'validee')
-        );
-    }
-
-    private function modelesActifs(?int $inclure = null)
+    private function modelesActifs(?int $inclure = null): Collection
     {
         return Modele::where('actif', true)
             ->when($inclure, fn (Builder $q) => $q->orWhere('id', $inclure))

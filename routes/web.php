@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\ChargeController;
+use App\Http\Controllers\FournisseurController;
 use App\Http\Controllers\LotController;
 use App\Http\Controllers\ModeleController;
 use App\Http\Controllers\ProfileController;
@@ -18,6 +20,10 @@ Route::middleware('auth')->group(function () {
 
     // A lot is never deleted: it is set to `annule` instead.
     Route::resource('lots', LotController::class)->except(['destroy']);
+
+    // Phase 3 - suppliers and manufacturing charges.
+    Route::resource('fournisseurs', FournisseurController::class);
+    Route::resource('charges', ChargeController::class)->except(['show']);
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

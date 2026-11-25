@@ -113,7 +113,10 @@ class LotTest extends TestCase
         $this->get(route('lots.show', $lot))
             ->assertStatus(200)
             ->assertSee($lot->numero)
-            ->assertSee('Quantite restante');
+            ->assertSee('Vendue / restante')
+            ->assertSee('Cout unitaire')
+            // Nothing sold yet, so all 100 units remain.
+            ->assertSee('0 / 100');
     }
 
     public function test_un_lot_peut_etre_modifie(): void

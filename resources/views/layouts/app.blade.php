@@ -29,7 +29,15 @@
                         <a class="nav-link {{ request()->routeIs('lots.*') ? 'active' : '' }}"
                            href="{{ route('lots.index') }}">Lots</a>
                     </li>
-                    {{-- Next phases: charges, clients, fournisseurs, ventes, reglements, caisse, rapports. --}}
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('charges.*') ? 'active' : '' }}"
+                           href="{{ route('charges.index') }}">Charges</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('fournisseurs.*') ? 'active' : '' }}"
+                           href="{{ route('fournisseurs.index') }}">Fournisseurs</a>
+                    </li>
+                    {{-- Next phases: clients, ventes, reglements, caisse, rapports. --}}
                 </ul>
                 <ul class="navbar-nav">
                     <li class="nav-item dropdown">
