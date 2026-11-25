@@ -37,7 +37,15 @@
                         <a class="nav-link {{ request()->routeIs('fournisseurs.*') ? 'active' : '' }}"
                            href="{{ route('fournisseurs.index') }}">Fournisseurs</a>
                     </li>
-                    {{-- Next phases: clients, ventes, reglements, caisse, rapports. --}}
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('ventes.*') ? 'active' : '' }}"
+                           href="{{ route('ventes.index') }}">Ventes</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('clients.*') ? 'active' : '' }}"
+                           href="{{ route('clients.index') }}">Clients</a>
+                    </li>
+                    {{-- Next phases: reglements, caisse, rapports. --}}
                 </ul>
                 <ul class="navbar-nav">
                     <li class="nav-item dropdown">
