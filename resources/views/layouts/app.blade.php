@@ -46,12 +46,20 @@
                            href="{{ route('clients.index') }}">Clients</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('reglements.*') ? 'active' : '' }}"
+                           href="{{ route('reglements.index') }}">Reglements</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link {{ request()->routeIs('caisse.*') ? 'active' : '' }}"
                            href="{{ route('caisse.index') }}">Caisse</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {{ request()->routeIs('rapports.*') ? 'active' : '' }}"
                            href="{{ route('rapports.index') }}">Rapports</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('journal.*') ? 'active' : '' }}"
+                           href="{{ route('journal.index') }}">Journal</a>
                     </li>
                 </ul>
                 <ul class="navbar-nav">

@@ -101,6 +101,26 @@
     </table>
 @endif
 
+<h2>Ventes par client</h2>
+@if ($ventesParClient->isEmpty())
+    <p class="vide">Aucune vente validee sur cette periode.</p>
+@else
+    <table>
+        <thead><tr><th>Client</th><th class="num">Factures</th><th class="num">CA</th><th class="num">Cout</th><th class="num">Marge</th></tr></thead>
+        <tbody>
+        @foreach ($ventesParClient as $ligne)
+            <tr>
+                <td>{{ $ligne->nom }}</td>
+                <td class="num">{{ $ligne->factures }}</td>
+                <td class="num">{{ $dt($ligne->chiffre) }}</td>
+                <td class="num">{{ $dt($ligne->cout) }}</td>
+                <td class="num">{{ $dt($ligne->marge) }}</td>
+            </tr>
+        @endforeach
+        </tbody>
+    </table>
+@endif
+
 <h2>Creances clients</h2>
 @if ($creances->isEmpty())
     <p class="vide">Aucune creance en cours.</p>

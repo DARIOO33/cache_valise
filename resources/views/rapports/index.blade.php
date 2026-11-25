@@ -95,6 +95,17 @@
     ])
 
     @include('rapports._section', [
+        'titre' => 'Ventes par client',
+        'csv' => $lien('ventes-client'),
+        'vide' => $ventesParClient->isEmpty(),
+        'entetes' => ['Client', 'Factures', 'Chiffre affaires', 'Cout', 'Marge'],
+        'lignes' => $ventesParClient->map(fn ($r) => [
+            $r->nom, $r->factures,
+            ['montant' => $r->chiffre], ['montant' => $r->cout], ['montant' => $r->marge],
+        ]),
+    ])
+
+    @include('rapports._section', [
         'titre' => 'Creances clients',
         'csv' => $lien('creances'),
         'vide' => $creances->isEmpty(),

@@ -51,6 +51,13 @@ class RapportController extends Controller
                     $r->reference, $r->designation, $r->quantite, $r->chiffre, $r->cout, $r->marge,
                 ]),
             ],
+            'ventes-client' => [
+                'ventes-par-client',
+                ['Client', 'Factures', 'Chiffre affaires', 'Cout', 'Marge'],
+                $rapports->ventesParClient($du, $au)->map(fn ($r) => [
+                    $r->nom, $r->factures, $r->chiffre, $r->cout, $r->marge,
+                ]),
+            ],
             'creances' => [
                 'creances-clients',
                 ['Client', 'Facture', 'Date', 'Total', 'Encaisse', 'Reste du'],
@@ -118,6 +125,7 @@ class RapportController extends Controller
             'chargesParCategorie' => $rapports->chargesParCategorie($du, $au),
             'chargesParLot' => $rapports->chargesParLot($du, $au),
             'ventesParModele' => $rapports->ventesParModele($du, $au),
+            'ventesParClient' => $rapports->ventesParClient($du, $au),
             'creances' => $rapports->creancesClients(),
             'dettes' => $rapports->dettesFournisseurs(),
             'solde' => $caisse->solde(),

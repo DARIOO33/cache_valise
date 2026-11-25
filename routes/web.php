@@ -5,6 +5,7 @@ use App\Http\Controllers\ChargeController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FournisseurController;
+use App\Http\Controllers\JournalController;
 use App\Http\Controllers\LigneVenteController;
 use App\Http\Controllers\LotController;
 use App\Http\Controllers\ModeleController;
@@ -43,6 +44,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('ventes/{vente}/lignes/{ligne}', [LigneVenteController::class, 'destroy'])->name('ventes.lignes.destroy');
 
     // Phase 5 - payments and the single cash box.
+    Route::get('reglements', [ReglementController::class, 'index'])->name('reglements.index');
     Route::post('ventes/{vente}/reglements', [ReglementController::class, 'store'])->name('ventes.reglements.store');
     Route::post('charges/{charge}/paiements', [PaiementChargeController::class, 'store'])->name('charges.paiements.store');
     Route::get('caisse', [CaisseController::class, 'index'])->name('caisse.index');
@@ -52,6 +54,7 @@ Route::middleware('auth')->group(function () {
     Route::post('caisse/{mouvement}/annulation', [CaisseController::class, 'annulation'])->name('caisse.annulation');
 
     // Phase 6 - reports, PDF and CSV exports.
+    Route::get('journal', [JournalController::class, 'index'])->name('journal.index');
     Route::get('rapports', [RapportController::class, 'index'])->name('rapports.index');
     Route::get('rapports/pdf', [RapportController::class, 'pdf'])->name('rapports.pdf');
     Route::get('rapports/csv', [RapportController::class, 'csv'])->name('rapports.csv');

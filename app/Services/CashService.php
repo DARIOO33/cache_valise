@@ -22,6 +22,8 @@ use RuntimeException;
  */
 class CashService
 {
+    public function __construct(private readonly AuditService $audit) {}
+
     /** Movement types whose direction is fixed by the type itself. */
     private const SENS = [
         'solde_initial' => 'entree',
@@ -170,7 +172,7 @@ class CashService
             throw new RuntimeException('Ce mouvement a deja ete annule.');
         }
 
-        return MouvementCaisse::create([
+        $contre = MouvementCaisse::create([
             'date_mouvement' => now()->toDateString(),
             'type' => 'correction',
             'sens' => $mouvement->sens === 'entree' ? 'sortie' : 'entree',
@@ -178,6 +180,14 @@ class CashService
             'libelle' => "Contre-ecriture : {$mouvement->libelle}",
             'annule_mouvement_id' => $mouvement->id,
         ]);
+
+        $this->audit->enregistrer('contre_ecriture', $mouvement, null, [
+            'mouvement_annule' => $mouvement->id,
+            'contre_ecriture' => $contre->id,
+            'montant' => $mouvement->montant,
+        ]);
+
+        return $contre;
     }
 
     /**

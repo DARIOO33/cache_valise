@@ -136,6 +136,61 @@ class RapportTest extends TestCase
         $this->assertSame(1300.0, $ligne->marge);
     }
 
+    public function test_les_ventes_sont_regroupees_par_client(): void
+    {
+        $this->factureValidee();
+
+        $ligne = app(ReportService::class)->ventesParClient()->sole();
+
+        $this->assertSame('Boutique Centre', $ligne->nom);
+        $this->assertSame(1, $ligne->factures);
+        $this->assertSame(1800.0, $ligne->chiffre);
+        $this->assertSame(1300.0, $ligne->marge);
+
+        $this->get(route('rapports.index'))
+            ->assertStatus(200)
+            ->assertSee('Ventes par client')
+            ->assertSee('Boutique Centre');
+    }
+
+    public function test_les_ventes_comptoir_sont_regroupees_a_part(): void
+    {
+        $this->post(route('ventes.store'), ['date_vente' => '2026-11-25', 'nom_comptoir' => 'Passage']);
+        $vente = Vente::latest('id')->first();
+        $this->post(route('ventes.lignes.store', $vente), [
+            'lot_id' => $this->lot->id, 'quantite' => 1, 'prix_unitaire' => 45,
+        ]);
+        $this->post(route('ventes.validation', $vente));
+
+        $this->assertSame(
+            'Ventes comptoir',
+            app(ReportService::class)->ventesParClient()->sole()->nom
+        );
+    }
+
+    public function test_lecran_reglements_liste_les_deux_flux(): void
+    {
+        $vente = $this->factureValidee();
+
+        $this->post(route('ventes.reglements.store', $vente), [
+            'date_reglement' => '2026-11-25', 'montant' => 1000, 'mode' => 'espece',
+        ]);
+
+        $charge = Charge::where('categorie', 'couture')->sole();
+        $this->post(route('charges.paiements.store', $charge), [
+            'date_paiement' => '2026-11-26', 'montant' => 250, 'mode' => 'virement',
+        ]);
+
+        $this->get(route('reglements.index'))
+            ->assertStatus(200)
+            ->assertSee('Encaissements clients')
+            ->assertSee('Paiements de charges')
+            ->assertSee($vente->numero_facture)
+            ->assertSee($charge->numero_piece)
+            ->assertSee('entree de caisse')
+            ->assertSee('hors caisse especes');
+    }
+
     public function test_les_creances_et_dettes_sont_calculees(): void
     {
         $vente = $this->factureValidee();

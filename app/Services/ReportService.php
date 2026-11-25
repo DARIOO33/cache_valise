@@ -99,6 +99,33 @@ class ReportService
             ]);
     }
 
+    /** Section 3.7 asks for sales by period, by model AND by customer. */
+    public function ventesParClient(?string $du = null, ?string $au = null): Collection
+    {
+        return DB::table('ventes')
+            ->leftJoin('clients', 'clients.id', '=', 'ventes.client_id')
+            ->leftJoin('lignes_vente', 'lignes_vente.vente_id', '=', 'ventes.id')
+            ->where('ventes.statut', 'validee')
+            ->when($du, fn (Builder $q) => $q->whereDate('ventes.date_vente', '>=', $du))
+            ->when($au, fn (Builder $q) => $q->whereDate('ventes.date_vente', '<=', $au))
+            ->select(
+                DB::raw("COALESCE(clients.nom, 'Ventes comptoir') as nom"),
+                DB::raw('COUNT(DISTINCT ventes.id) as factures'),
+                DB::raw('SUM(lignes_vente.montant_ligne) as chiffre'),
+                DB::raw('SUM(lignes_vente.quantite * COALESCE(lignes_vente.cout_unitaire, 0)) as cout')
+            )
+            ->groupBy('nom')
+            ->orderByDesc('chiffre')
+            ->get()
+            ->map(fn ($r) => (object) [
+                'nom' => $r->nom,
+                'factures' => (int) $r->factures,
+                'chiffre' => (float) $r->chiffre,
+                'cout' => (float) $r->cout,
+                'marge' => round((float) $r->chiffre - (float) $r->cout, 3),
+            ]);
+    }
+
     /** Twelve months of revenue, oldest first, for the dashboard chart. */
     public function ventesParMois(int $mois = 12): Collection
     {

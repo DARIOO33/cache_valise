@@ -20,6 +20,7 @@ class SalesService
     public function __construct(
         private readonly ProductionCostService $couts,
         private readonly CashService $caisse,
+        private readonly AuditService $audit,
     ) {}
 
     public function ajouterLigne(Vente $vente, array $donnees): LigneVente
@@ -80,6 +81,12 @@ class SalesService
                 'validated_at' => now(),
             ]);
 
+            $this->audit->enregistrer('validation_facture', $vente, null, [
+                'numero_facture' => $vente->numero_facture,
+                'total' => $vente->total,
+                'couts_figes' => $vente->lignes->pluck('cout_unitaire', 'id')->all(),
+            ]);
+
             return $vente->refresh();
         });
     }
@@ -98,9 +105,19 @@ class SalesService
         }
 
         return DB::transaction(function () use ($vente) {
-            $this->caisse->annulerMouvementsDe($vente);
+            $statutPrecedent = $vente->statut;
+            $contreEcritures = $this->caisse->annulerMouvementsDe($vente);
 
             $vente->update(['statut' => 'annulee']);
+
+            $this->audit->enregistrer('annulation_facture', $vente,
+                ['statut' => $statutPrecedent],
+                [
+                    'numero_facture' => $vente->numero_facture,
+                    'total' => $vente->total,
+                    'contre_ecritures' => $contreEcritures,
+                ],
+            );
 
             return $vente->refresh();
         });

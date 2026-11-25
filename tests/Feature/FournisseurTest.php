@@ -70,6 +70,36 @@ class FournisseurTest extends TestCase
             ->assertSee('800,000 DT');
     }
 
+    public function test_la_fiche_montre_lhistorique_des_paiements_et_la_dette(): void
+    {
+        $fournisseur = Fournisseur::create($this->donnees());
+
+        $charge = Charge::create([
+            'numero_piece' => 'PC-2026-0001',
+            'date_charge' => '2026-11-20',
+            'lot_id' => $this->lot()->id,
+            'fournisseur_id' => $fournisseur->id,
+            'categorie' => 'tissu',
+            'designation' => 'Tissu bleu',
+            'quantite' => 100,
+            'prix_unitaire' => 8,
+        ]);
+
+        $this->post(route('charges.paiements.store', $charge), [
+            'date_paiement' => '2026-11-22',
+            'montant' => 300,
+            'mode' => 'espece',
+        ]);
+
+        $this->get(route('fournisseurs.show', $fournisseur))
+            ->assertStatus(200)
+            ->assertSee('Historique des paiements')
+            ->assertSee('Dette restante')
+            ->assertSee('800,000 DT')   // engage
+            ->assertSee('300,000 DT')   // paye
+            ->assertSee('500,000 DT');  // dette restante
+    }
+
     public function test_un_fournisseur_sans_charge_est_supprimable(): void
     {
         $fournisseur = Fournisseur::create($this->donnees());

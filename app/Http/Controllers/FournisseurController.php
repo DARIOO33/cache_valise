@@ -36,10 +36,23 @@ class FournisseurController extends Controller
     public function show(Fournisseur $fournisseur): View
     {
         $fournisseur->load([
-            'charges' => fn ($q) => $q->with('lot')->orderByDesc('date_charge'),
+            'charges' => fn ($q) => $q->with(['lot', 'paiements'])->orderByDesc('date_charge'),
         ]);
 
-        return view('fournisseurs.show', compact('fournisseur'));
+        $engage = (float) $fournisseur->charges->sum('montant');
+        $paye = (float) $fournisseur->charges->sum(fn ($charge) => $charge->paiements->sum('montant'));
+
+        return view('fournisseurs.show', [
+            'fournisseur' => $fournisseur,
+            'engage' => round($engage, 3),
+            'paye' => round($paye, 3),
+            'dette' => round($engage - $paye, 3),
+            // Section 3.5 asks for the payment history, not just the charges.
+            'paiements' => $fournisseur->charges
+                ->flatMap->paiements
+                ->sortByDesc('date_paiement')
+                ->values(),
+        ]);
     }
 
     public function edit(Fournisseur $fournisseur): View
