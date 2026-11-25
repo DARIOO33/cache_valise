@@ -17,7 +17,10 @@ use RuntimeException;
  */
 class SalesService
 {
-    public function __construct(private readonly ProductionCostService $couts) {}
+    public function __construct(
+        private readonly ProductionCostService $couts,
+        private readonly CashService $caisse,
+    ) {}
 
     public function ajouterLigne(Vente $vente, array $donnees): LigneVente
     {
@@ -85,7 +88,8 @@ class SalesService
      * Whole invoice only: a cancelled invoice stays visible, leaves CA, COGS
      * and quantite vendue, and keeps its number so the series has no gap.
      *
-     * Phase 5 extends this with a contre-ecriture for each cash reglement.
+     * Every cash reglement behind it gets a contre-ecriture, so the caisse
+     * balance returns to what it was and the journal keeps both entries.
      */
     public function annuler(Vente $vente): Vente
     {
@@ -93,9 +97,13 @@ class SalesService
             throw new RuntimeException('Cette facture est deja annulee.');
         }
 
-        $vente->update(['statut' => 'annulee']);
+        return DB::transaction(function () use ($vente) {
+            $this->caisse->annulerMouvementsDe($vente);
 
-        return $vente->refresh();
+            $vente->update(['statut' => 'annulee']);
+
+            return $vente->refresh();
+        });
     }
 
     /** COGS: quantity times the cost frozen on the line, never the lot's current cost. */

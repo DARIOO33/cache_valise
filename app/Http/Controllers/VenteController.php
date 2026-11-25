@@ -58,7 +58,7 @@ class VenteController extends Controller
 
     public function show(Vente $vente, SalesService $ventes): View
     {
-        $vente->load(['client', 'lignes.lot.modele', 'reglements']);
+        $vente->load(['client', 'lignes.lot.modele', 'reglements.mouvementCaisse']);
 
         return view('ventes.show', [
             'vente' => $vente,

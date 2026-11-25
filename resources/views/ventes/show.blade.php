@@ -211,12 +211,57 @@
         </div>
 
         <div class="card shadow-sm">
-            <div class="card-body text-body-secondary">
-                <h2 class="h5 mb-2 text-body">Reglements</h2>
-                <p class="mb-0 small">
-                    Phase 5 : encaissements, mode de reglement et mouvement de caisse.
-                    Rappel : seul un reglement en especes touchera la caisse.
-                </p>
+            <div class="card-body">
+                <h2 class="h5 mb-3">Reglements</h2>
+
+                @if ($vente->reglements->isEmpty())
+                    <p class="text-body-secondary">Aucun reglement enregistre.</p>
+                @else
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle">
+                            <thead class="table-light">
+                                <tr><th>Date</th><th>Mode</th><th>Reference</th><th>Caisse</th><th class="text-end">Montant</th></tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($vente->reglements as $reglement)
+                                    <tr>
+                                        <td>{{ $reglement->date_reglement->format('d/m/Y') }}</td>
+                                        <td>@include('partials.mode', ['mode' => $reglement->mode])</td>
+                                        <td>{{ $reglement->reference ?: '—' }}</td>
+                                        <td>
+                                            @if ($reglement->mouvementCaisse)
+                                                <a href="{{ route('caisse.index') }}" class="text-success small">entree de caisse</a>
+                                            @else
+                                                <span class="text-body-secondary small">hors caisse especes</span>
+                                            @endif
+                                        </td>
+                                        <td class="text-end"><x-montant :value="$reglement->montant"/></td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                            <tfoot>
+                                <tr class="fw-semibold">
+                                    <td colspan="4" class="text-end">Encaisse</td>
+                                    <td class="text-end"><x-montant :value="$encaisse"/></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                @endif
+
+                @if ((float) $vente->total - $encaisse > 0)
+                    <hr>
+                    <h3 class="h6 mb-3">Enregistrer un reglement</h3>
+                    <form method="POST" action="{{ route('ventes.reglements.store', $vente) }}">
+                        @csrf
+                        @include('partials.formulaire-paiement', [
+                            'champDate' => 'date_reglement',
+                            'maximum' => (float) $vente->total - $encaisse,
+                        ])
+                    </form>
+                @else
+                    <p class="text-success mb-0">Cette facture est entierement reglee.</p>
+                @endif
             </div>
         </div>
     @endif

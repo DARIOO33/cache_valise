@@ -87,7 +87,7 @@
                                             <td>{{ $charge->fournisseur?->nom ?: '—' }}</td>
                                             <td class="text-end"><x-montant :value="$charge->montant"/></td>
                                             <td class="text-end">
-                                                <a href="{{ route('charges.edit', $charge) }}" class="btn btn-sm btn-outline-secondary">Modifier</a>
+                                                <a href="{{ route('charges.show', $charge) }}" class="btn btn-sm btn-outline-secondary">Detail</a>
                                             </td>
                                         </tr>
                                     @endforeach

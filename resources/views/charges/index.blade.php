@@ -77,6 +77,7 @@
                             <td class="text-end"><x-montant :value="$charge->prix_unitaire"/></td>
                             <td class="text-end fw-semibold"><x-montant :value="$charge->montant"/></td>
                             <td class="text-end">
+                                <a href="{{ route('charges.show', $charge) }}" class="btn btn-sm btn-outline-secondary">Detail</a>
                                 <a href="{{ route('charges.edit', $charge) }}" class="btn btn-sm btn-outline-secondary">Modifier</a>
                             </td>
                         </tr>

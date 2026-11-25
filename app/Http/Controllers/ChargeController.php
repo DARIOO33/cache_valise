@@ -6,6 +6,7 @@ use App\Http\Requests\ChargeRequest;
 use App\Models\Charge;
 use App\Models\Fournisseur;
 use App\Models\Lot;
+use App\Services\CashService;
 use App\Services\SequenceService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
@@ -56,6 +57,16 @@ class ChargeController extends Controller
         return redirect()
             ->route('lots.show', $charge->lot_id)
             ->with('status', "Charge {$charge->numero_piece} enregistree.");
+    }
+
+    public function show(Charge $charge, CashService $caisse): View
+    {
+        $charge->load(['lot.modele', 'fournisseur', 'paiements.mouvementCaisse']);
+
+        return view('charges.show', [
+            'charge' => $charge,
+            'resteAPayer' => $caisse->resteAPayer($charge),
+        ]);
     }
 
     public function edit(Charge $charge): View

@@ -45,7 +45,11 @@
                         <a class="nav-link {{ request()->routeIs('clients.*') ? 'active' : '' }}"
                            href="{{ route('clients.index') }}">Clients</a>
                     </li>
-                    {{-- Next phases: reglements, caisse, rapports. --}}
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('caisse.*') ? 'active' : '' }}"
+                           href="{{ route('caisse.index') }}">Caisse</a>
+                    </li>
+                    {{-- Next phase: rapports. --}}
                 </ul>
                 <ul class="navbar-nav">
                     <li class="nav-item dropdown">

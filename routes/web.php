@@ -1,12 +1,15 @@
 <?php
 
+use App\Http\Controllers\CaisseController;
 use App\Http\Controllers\ChargeController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\FournisseurController;
 use App\Http\Controllers\LigneVenteController;
 use App\Http\Controllers\LotController;
 use App\Http\Controllers\ModeleController;
+use App\Http\Controllers\PaiementChargeController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReglementController;
 use App\Http\Controllers\VenteController;
 use Illuminate\Support\Facades\Route;
 
@@ -26,7 +29,7 @@ Route::middleware('auth')->group(function () {
 
     // Phase 3 - suppliers and manufacturing charges.
     Route::resource('fournisseurs', FournisseurController::class);
-    Route::resource('charges', ChargeController::class)->except(['show']);
+    Route::resource('charges', ChargeController::class);
 
     // Phase 4 - customers, invoices and their lines.
     Route::resource('clients', ClientController::class);
@@ -36,6 +39,15 @@ Route::middleware('auth')->group(function () {
     Route::post('ventes/{vente}/annulation', [VenteController::class, 'annulation'])->name('ventes.annulation');
     Route::post('ventes/{vente}/lignes', [LigneVenteController::class, 'store'])->name('ventes.lignes.store');
     Route::delete('ventes/{vente}/lignes/{ligne}', [LigneVenteController::class, 'destroy'])->name('ventes.lignes.destroy');
+
+    // Phase 5 - payments and the single cash box.
+    Route::post('ventes/{vente}/reglements', [ReglementController::class, 'store'])->name('ventes.reglements.store');
+    Route::post('charges/{charge}/paiements', [PaiementChargeController::class, 'store'])->name('charges.paiements.store');
+    Route::get('caisse', [CaisseController::class, 'index'])->name('caisse.index');
+    Route::get('caisse/mouvement', [CaisseController::class, 'create'])->name('caisse.create');
+    Route::post('caisse/mouvement', [CaisseController::class, 'store'])->name('caisse.store');
+    // The journal is append-only: cancelling writes a contre-ecriture.
+    Route::post('caisse/{mouvement}/annulation', [CaisseController::class, 'annulation'])->name('caisse.annulation');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
